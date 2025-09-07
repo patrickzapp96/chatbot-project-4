@@ -22,7 +22,7 @@ user_states = {}
 # Konfiguration für Google Kalender API (Bitte anpassen!)
 # FÜR LOKALE ENTWICKLUNG: Ersetze die Platzhalter mit deinen tatsächlichen Werten
 # VOR DEM HOCHLADEN AUF VERCEL: Ändere diese wieder zu os.environ.get(...)
-CLIENT_ID = "544618140213-ganesqq599qjbeeta4qspalb4blui80j.apps.googleusercontent.com" 
+CLIENT_ID = "544618140213-ganesqq599qjbeeta4qspalb4blui80j.apps.googleusercontent.com"
 CLIENT_SECRET = "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"
 REDIRECT_URI = "http://localhost:5000/auth_callback"
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
@@ -254,4 +254,5 @@ def chat():
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
+
 

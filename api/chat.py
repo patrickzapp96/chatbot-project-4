@@ -22,7 +22,7 @@ user_states = {}
 # Konfiguration für Google Kalender API (Bitte anpassen!)
 CLIENT_ID = "544618140213-ganesqq599qjbeeta4qspalb4blui80j.apps.googleusercontent.com")
 CLIENT_SECRET = "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")
-REDIRECT_URI = "https://chatbot-project-4-friseur.vercel.app/auth_callback" # Ersetze mit deiner Vercel-URL im Live-Betrieb
+REDIRECT_URI = "http://localhost:5000/auth_callback" # Ersetze mit deiner Vercel-URL im Live-Betrieb
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 
 # FAQ-Datenbank
@@ -250,5 +250,6 @@ def chat_handler():
 if __name__ == '__main__':
 
     app.run(debug=True)
+
 
 

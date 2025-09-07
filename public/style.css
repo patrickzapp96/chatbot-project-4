@@ -1,0 +1,133 @@
+/* Floating Button */
+#chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+#chat-toggle:hover { transform: scale(1.05); }
+
+/* Widget */
+#chat-widget {
+    width: 320px;
+    height: 460px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: #f5f5f5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+/* Header */
+#chat-header {
+    background: #075E54;
+    color: white;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+#chat-header span { font-weight: bold; }
+#chat-header .avatar {
+    border-radius: 50%;
+    margin-right: 8px;
+}
+#chat-header button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* Messages */
+#chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.message {
+    max-width: 70%;
+    padding: 8px 12px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+.user {
+    align-self: flex-end;
+    background: #DCF8C6;
+}
+.bot {
+    align-self: flex-start;
+    background: white;
+    border: 1px solid #ddd;
+}
+
+/* NEUE CSS-REGEL für rote Bot-Nachrichten */
+.bot-red-message .bubble {
+    color: red;
+    font-weight: bold; /* Optional: Macht den Text fetter */
+}
+
+.avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+/* Typing indicator */
+#typing-indicator {
+    font-size: 12px;
+    color: #555;
+    font-style: italic;
+    margin: 0 10px 6px;
+}
+
+/* Input */
+#chat-input {
+    display: flex;
+    border-top: 1px solid #ccc;
+    padding: 6px;
+    background: white;
+}
+#chat-input input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #f0f0f0;
+}
+#chat-input button {
+    border: none;
+    background: #075E54;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-left: 6px;
+    cursor: pointer;
+}

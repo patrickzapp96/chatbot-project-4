@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSI-Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="chat-toggle">💬</div>
+
+    <div id="chat-widget" style="display:none;">
+        <div id="chat-header">
+            <span class="header-avatar">🤖</span>
+            <span>Branchenbasierte Intelligenz</span>
+            <button id="chat-close">✖</button>
+        </div>
+        <div id="chat-messages"></div>
+        <div id="typing-indicator" style="display:none;">tippt...</div>
+        <div id="chat-input">
+            <input id="userMessage" type="text" placeholder="Nachricht eingeben..." />
+            <button onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

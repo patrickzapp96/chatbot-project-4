@@ -6,8 +6,6 @@ from email.message import EmailMessage
 import re
 from icalendar import Calendar, Event
 from datetime import datetime
-# Importiere thefuzz für die unscharfe Suche
-from thefuzz import fuzz
 
 app = Flask(__name__)
 CORS(app)
@@ -245,29 +243,22 @@ def chat_handler():
 
         # Überprüfe den aktuellen Konversationsstatus
         if current_state == "initial":
+            cleaned_message = re.sub(r'[^\w\s]', '', user_message)
+            user_words = set(cleaned_message.split())
             best_match_score = 0
-            best_answer = faq_db['fallback']
             
-            # Fuzzy-Suche nach der besten Antwort
-            for item in faq_db['fragen']:
-                # Erstelle einen kombinierten String aus allen Keywords
-                keyword_string = ' '.join(item['keywords'])
-                
-                # Berechne den Ähnlichkeits-Score
-                score = fuzz.token_set_ratio(user_message, keyword_string)
-                
-                if score > best_match_score:
-                    best_match_score = score
-                    best_answer = item['antwort']
-            
-            # Schwellenwert für eine akzeptable Übereinstimmung
-            if best_match_score >= 75:
-                response_text = best_answer
-                # Überprüfe, ob es sich um die Termin-Frage handelt
-                if "termin" in user_message or "buchen" in user_message or "vereinbaren" in user_message:
-                    response_text = "Gerne. Wie lautet Ihr vollständiger Name?"
-                    user_states[user_ip]["state"] = "waiting_for_name"
-
+            if any(keyword in user_message for keyword in ["termin", "buchen", "vereinbaren"]):
+                response_text = "Gerne. Wie lautet Ihr vollständiger Name?"
+                user_states[user_ip] = {"state": "waiting_for_name"}
+            else:
+                for item in faq_db['fragen']:
+                    keyword_set = set(item['keywords'])
+                    intersection = user_words.intersection(keyword_set)
+                    score = len(intersection)
+                    
+                    if score > best_match_score:
+                        best_match_score = score
+                        response_text = item['antwort']
             
         elif current_state == "waiting_for_name":
             user_states[user_ip]["name"] = user_message
@@ -333,3 +324,4 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

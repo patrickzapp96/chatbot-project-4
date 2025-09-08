@@ -16,8 +16,8 @@ toggleBtn.addEventListener("click", () => {
             // Hinzufügen einer neuen Klasse 'bot-red-message' für die rote Farbe
             addMessage("Es werden keine personenbezogenen Daten gespeichert.", "bot", "bot-red-message");
             setTimeout(() => {
-                // Hinzufügen einer neuen Klasse 'bot-red-message' für die rote Farbe
-                addMessage("Terminanfragen hier möglich.", "bot", "bot-red-message");
+                // Hinzufügen einer neuen Klasse 'bot-green-message' für die grüne Farbe
+                addMessage("Terminanfragen hier möglich.", "bot", "bot-green-message");
                     setTimeout(() => {
                         addMessage("Wie kann ich Ihnen behilflich sein?", "bot");
                     }, 500); // 0.5 Sekunden Verzögerung 
@@ -29,33 +29,30 @@ closeBtn.addEventListener("click", () => {
     chatWidget.style.display = "none";
     toggleBtn.style.display = "flex";
 });
-chatInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-        sendMessage();
-    }
-});
+
+// Nachricht senden
 async function sendMessage() {
-    const input = document.getElementById("userMessage");
-    const msg = input.value.trim();
-    if (!msg) return;
+    const userMessage = chatInput.value.trim();
+    if (userMessage === "") return;
 
-    addMessage(msg, "user");
-    input.value = "";
-
+    // Füge die Benutzernachricht hinzu
+    addMessage(userMessage, "user");
+    chatInput.value = "";
+    
+    // Zeige den "tippt..." Indikator
     typingIndicator.style.display = "block";
 
     try {
-        const res = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: msg })
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: userMessage }),
         });
-        if (!res.ok) {
-            throw new Error(`Serverantwort war nicht okay: ${res.status}`);
-        }
-
-        const data = await res.json();
-        // Füge eine Verzögerung von 500ms (0,5 Sekunden) hinzu
+        const data = await response.json();
+        
+        // Warte 0.5 Sekunden, bevor die Bot-Antwort angezeigt wird, um es realistischer zu gestalten
         setTimeout(() => {
             addMessage(data.reply, "bot");
             typingIndicator.style.display = "none";
@@ -99,7 +96,6 @@ function addMessage(text, sender, extraClass = null) {
         msgDiv.appendChild(avatar);
         msgDiv.appendChild(bubble);
     }
-
     chat.appendChild(msgDiv);
     chat.scrollTop = chat.scrollHeight;
 }

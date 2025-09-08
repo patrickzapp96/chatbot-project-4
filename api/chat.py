@@ -20,7 +20,7 @@ faq_db = {
             "id": 1,
             "kategorie": "Öffnungszeiten",
             "titel": "Öffnungszeiten",
-            "keywords": ["öffnungszeiten", "wann geöffnet", "wann offen", "arbeitszeit"],
+            "keywords": ["öffnungszeiten", "wann", "geöffnet", "offen", "arbeitszeit"],
             "antwort": "Wir sind Montag–Freitag von 9:00 bis 18:00 Uhr und Samstag von 9:00 bis 14:00 Uhr für Sie da. Sonntag ist Ruhetag."
         },
         {
@@ -324,4 +324,5 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 

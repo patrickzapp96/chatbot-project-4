@@ -111,14 +111,14 @@ faq_db = {
             "id": 14,
             "kategorie": "Terminbuchung",
             "titel": "Spontane Termine",
-            "keywords": ["wartezeit", "sofort", "heute", "spontan"],
+            "keywords": ["warten", "wartezeit", "sofort", "heute", "spontan"],
             "antwort": "Kommen Sie gerne vorbei – manchmal haben wir auch spontan freie Termine. Am sichersten ist es aber, vorher kurz anzurufen unter 030-123456"
         },
         {
             "id": 15,
             "kategorie": "Services",
             "titel": "Haarverlängerung",
-            "keywords": ["verlängern", "extensions"],
+            "keywords": ["verlängern", "extensions", "verlängerung", "haarverlängerung"],
             "antwort": "Ja, wir bieten auch Haarverlängerungen und Verdichtungen mit hochwertigen Extensions an."
         },
         {
@@ -324,4 +324,5 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 

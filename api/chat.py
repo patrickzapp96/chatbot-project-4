@@ -181,7 +181,7 @@ faq_db = {
             "id": 24,
             "kategorie": "Terminbuchung",
             "titel": "Termin stornieren",
-            "keywords": ["stornieren", "Termin stornieren", "termin absagen", "verschieben", "nicht kommen"],
+            "keywords": ["stornieren", "termin stornieren", "termin absagen", "verschieben", "nicht kommen"],
             "antwort": "Sie können Ihren Termin bis zu 24 Stunden vorher telefonisch unter 030-123456 oder per E-Mail an info@friseur-muster.de absagen. Bei Nichterscheinen behalten wir uns vor, eine Ausfallgebühr zu berechnen."
         },
         {
@@ -366,6 +366,7 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 

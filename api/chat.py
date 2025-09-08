@@ -112,4 +112,95 @@ def chat_handler():
         if not request.is_json:
             return jsonify({"error": "Fehlende JSON-Nachricht"}), 400
 
-        user_message = request.json.get('message', '').lower
+        user_message = request.json.get('message', '').lower()
+        user_ip = request.remote_addr
+        
+        if user_ip not in user_states:
+            user_states[user_ip] = {"state": "initial"}
+            
+        current_state = user_states[user_ip]["state"]
+        response_text = faq_db['fallback']
+
+        # Überprüfe den aktuellen Konversationsstatus
+        if current_state == "initial":
+            cleaned_message = re.sub(r'[^\w\s]', '', user_message)
+            user_words = set(cleaned_message.split())
+            best_match_score = 0
+            
+            if any(keyword in user_message for keyword in ["termin", "buchen", "vereinbaren"]):
+                response_text = "Gerne. Wie lautet Ihr vollständiger Name?"
+                user_states[user_ip] = {"state": "waiting_for_name"}
+            else:
+                for item in faq_db['fragen']:
+                    keyword_set = set(item['keywords'])
+                    intersection = user_words.intersection(keyword_set)
+                    score = len(intersection)
+                    
+                    if score > best_match_score:
+                        best_match_score = score
+                        response_text = item['antwort']
+            
+        elif current_state == "waiting_for_name":
+            user_states[user_ip]["name"] = user_message
+            response_text = "Vielen Dank. Wie lautet Ihre E-Mail-Adresse?"
+            user_states[user_ip]["state"] = "waiting_for_email"
+
+        elif current_state == "waiting_for_email":
+            email_regex = r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
+            if re.match(email_regex, user_message):
+                user_states[user_ip]["email"] = user_message
+                response_text = "Alles klar. Welchen Service möchten Sie buchen (z.B. Haarschnitt, Färben, Bartpflege)?"
+                user_states[user_ip]["state"] = "waiting_for_service"
+            else:
+                response_text = "Das scheint keine gültige E-Mail-Adresse zu sein. Bitte geben Sie eine korrekte E-Mail-Adresse ein."
+        
+        elif current_state == "waiting_for_service":
+            user_states[user_ip]["service"] = user_message
+            response_text = "Wann (Datum und Uhrzeit) würden Sie den Termin gerne wahrnehmen?"
+            user_states[user_ip]["state"] = "waiting_for_datetime"
+
+        elif current_state == "waiting_for_datetime":
+            user_states[user_ip]["date_time"] = user_message
+            
+            data = user_states[user_ip]
+            response_text = (
+                f"Bitte überprüfen Sie Ihre Angaben:\n"
+                f"Name: {data.get('name', 'N/A')}\n"
+                f"E-Mail: {data.get('email', 'N/A')}\n"
+                f"Service: {data.get('service', 'N/A')}\n"
+                f"Datum und Uhrzeit: {data.get('date_time', 'N/A')}\n\n"
+                f"Möchten Sie die Anfrage so absenden? Bitte antworten Sie mit 'Ja' oder 'Nein'."
+            )
+            user_states[user_ip]["state"] = "waiting_for_confirmation"
+        
+        elif current_state == "waiting_for_confirmation":
+            if user_message in ["ja", "ja, das stimmt", "bestätigen", "ja bitte"]:
+                request_data = {
+                    "name": user_states[user_ip].get("name", "N/A"),
+                    "email": user_states[user_ip].get("email", "N/A"),
+                    "service": user_states[user_ip].get("service", "N/A"),
+                    "date_time": user_states[user_ip].get("date_time", "N/A"),
+                }
+                
+                if send_appointment_request(request_data):
+                    response_text = "Vielen Dank! Ihre Terminanfrage wurde erfolgreich übermittelt. Wir werden uns in Kürze bei Ihnen melden."
+                else:
+                    response_text = "Entschuldigung, es gab ein Problem beim Senden Ihrer Anfrage. Bitte rufen Sie uns direkt an."
+                
+                user_states[user_ip]["state"] = "initial"
+            
+            elif user_message in ["nein", "abbrechen", "falsch"]:
+                response_text = "Die Terminanfrage wurde abgebrochen. Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'."
+                user_states[user_ip]["state"] = "initial"
+            
+            else:
+                response_text = "Bitte antworten Sie mit 'Ja' oder 'Nein'."
+        
+        return jsonify({"reply": response_text})
+
+    except Exception as e:
+        print(f"Ein Fehler ist aufgetreten: {e}")
+        return jsonify({"error": "Interner Serverfehler"}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -155,6 +155,48 @@ faq_db = {
             "titel": "Kontakt",
             "keywords": ["kontakt", "kontaktdaten", "telefonnummer", "telefon", "nummer", "anrufen"],
             "antwort": "Sie erreichen uns telefonisch unter 030-123456 oder per E-Mail unter info@friseur-muster.de."
+        },
+        {
+            "id": 21,
+            "kategorie": "Services",
+            "titel": "Balayage und Strähnchen",
+            "keywords": ["balayage", "strähnchen", "highlights", "lowlights"],
+            "antwort": "Wir sind Spezialisten für Balayage, Highlights und Lowlights. Unsere Stylisten kreieren natürliche Farbverläufe, die Ihr Haar zum Strahlen bringen."
+        },
+        {
+            "id": 22,
+            "kategorie": "Services",
+            "titel": "Olaplex-Behandlung",
+            "keywords": ["olaplex", "haarpflege", "kur", "stärkung", "haare reparieren", "reparieren"],
+            "antwort": "Wir bieten eine professionelle Olaplex-Behandlung an, die Haarschäden repariert, die Haarstruktur stärkt und für gesundes, glänzendes Haar sorgt."
+        },
+        {
+            "id": 23,
+            "kategorie": "Services",
+            "titel": "Trockenhaarschnitt",
+            "keywords": ["trockenhaarschnitt", "trockenschnitt", "ohne waschen", "schnell"],
+            "antwort": "Ein Trockenhaarschnitt ist bei uns nach Absprache möglich. Er ist ideal, wenn Sie wenig Zeit haben oder einfach nur die Spitzen geschnitten haben möchten."
+        },
+        {
+            "id": 24,
+            "kategorie": "Terminbuchung",
+            "titel": "Termin stornieren",
+            "keywords": ["stornieren", "termin absagen", "verschieben", "nicht kommen"],
+            "antwort": "Sie können Ihren Termin bis zu 24 Stunden vorher telefonisch unter 030-123456 oder per E-Mail an info@friseur-muster.de absagen. Bei Nichterscheinen behalten wir uns vor, eine Ausfallgebühr zu berechnen."
+        },
+        {
+            "id": 25,
+            "kategorie": "Allgemein",
+            "titel": "Barrierefreiheit",
+            "keywords": ["rollstuhl", "barrierefrei", "zugang", "barrierefreiheit"],
+            "antwort": "Unser Salon ist barrierefrei zugänglich, sodass auch Rollstuhlfahrer problemlos zu uns kommen können."
+        },
+        {
+            "id": 26,
+            "kategorie": "Allgemein",
+            "titel": "Haustiere",
+            "keywords": ["hund", "haustier", "tiere"],
+            "antwort": "Aus hygienischen Gründen und im Interesse aller Kunden sind Haustiere in unserem Salon leider nicht gestattet."
         }
     ],
     "fallback": "Das weiß ich leider nicht. Bitte rufen Sie uns direkt unter 030-123456 an, wir helfen Ihnen gerne persönlich weiter."
@@ -324,5 +366,6 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 

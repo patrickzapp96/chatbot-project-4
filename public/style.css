@@ -16,13 +16,15 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     transition: transform 0.2s;
 }
-#chat-toggle:hover { transform: scale(1.05); }
+#chat-toggle:hover {
+    transform: scale(1.05);
+}
 
 /* Widget */
 #chat-widget {
     width: 320px;
     height: 460px;
-    display: flex;
+    display: none;
     flex-direction: column;
     border: 1px solid #ccc;
     border-radius: 12px;
@@ -37,16 +39,19 @@
 
 /* Header */
 #chat-header {
-    background: #075E54;
+    background: #4A90E2;
     color: white;
-    padding: 10px;
+    padding: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-weight: bold;
+    font-size: 16px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
-#chat-header span { font-weight: bold; }
-#chat-header .avatar {
-    border-radius: 50%;
+.header-avatar {
+    font-size: 20px;
     margin-right: 8px;
 }
 #chat-header button {
@@ -86,48 +91,55 @@
     border: 1px solid #ddd;
 }
 
-/* NEUE CSS-REGEL für rote Bot-Nachrichten */
-.bot-red-message .bubble {
-    color: red;
-    font-weight: bold; /* Optional: Macht den Text fetter */
-}
-
 .avatar {
     width: 24px;
     height: 24px;
     border-radius: 50%;
 }
 
-/* Typing indicator */
-#typing-indicator {
-    font-size: 12px;
-    color: #555;
-    font-style: italic;
-    margin: 0 10px 6px;
-}
-
-/* Input */
+/* Nachrichteneingabe */
 #chat-input {
     display: flex;
-    border-top: 1px solid #ccc;
-    padding: 6px;
-    background: white;
+    padding: 10px;
+    border-top: 1px solid #ddd;
 }
 #chat-input input {
     flex: 1;
-    border: none;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 8px 12px;
     outline: none;
-    padding: 8px;
-    border-radius: 8px;
+    margin-right: 8px;
     font-size: 14px;
-    background: #f0f0f0;
 }
 #chat-input button {
-    border: none;
-    background: #075E54;
+    background: #4A90E2;
     color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin-left: 6px;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
     cursor: pointer;
+}
+
+/* Ladeanzeige (Tippt...) */
+#typing-indicator {
+    padding: 8px 12px;
+    font-style: italic;
+    color: #888;
+    font-size: 12px;
+    align-self: flex-start;
+}
+
+/* NEUE CSS-REGEL für rote Bot-Nachrichten */
+.bot-red-message .bubble {
+    color: red;
+    font-weight: bold;
+}
+
+/* NEUE CSS-REGEL für grüne Bot-Nachrichten */
+.bot-green-message .bubble {
+    color: green;
+    font-weight: bold;
 }

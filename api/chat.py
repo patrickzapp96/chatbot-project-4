@@ -156,7 +156,7 @@ def chat_handler():
         
         elif current_state == "waiting_for_service":
             user_states[user_ip]["service"] = user_message
-            response_text = "Wann (Datum und Uhrzeit) würden Sie den Termin gerne wahrnehmen?"
+            response_text = "Wann würden Sie den Termin gerne wahrnehmen? Bitte geben Sie das Datum und die Uhrzeit im Format **TT.MM.JJJJ HH:MM** ein, z.B. **15.10.2025 14:00**."
             user_states[user_ip]["state"] = "waiting_for_datetime"
 
         elif current_state == "waiting_for_datetime":

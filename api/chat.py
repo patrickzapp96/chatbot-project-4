@@ -16,26 +16,146 @@ user_states = {}
 # FAQ-Datenbank
 faq_db = {
     "fragen": [
-        {"keywords": ["öffnungszeiten", "wann geöffnet", "wann offen", "arbeitszeit"], "antwort": "Wir sind Montag–Freitag von 9:00 bis 18:00 Uhr und Samstag von 9:00 bis 14:00 Uhr für Sie da. Sonntag ist Ruhetag."},
-        {"keywords": ["termin", "vereinbaren", "buchen", "reservieren", "online"], "antwort": "Wenn Sie einen Termin vereinbaren möchten, geben Sie bitte zuerst Ihren vollständigen Namen ein."},
-        {"keywords": ["adresse", "wo", "anschrift", "finden", "lage"], "antwort": "Unsere Adresse lautet: Musterstraße 12, 10115 Berlin. Wir sind zentral und gut erreichbar."},
-        {"keywords": ["preise", "kosten", "kostet", "gebühren", "haarschnitt", "herrenhaarschnitt", "damenhaarschnitt"], "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie im Salon."},
-        {"keywords": ["zahlung", "karte", "bar", "visa", "mastercard", "paypal", "kartenzahlung", "kontaktlos", "bezahlen"], "antwort": "Sie können bar, mit EC-Karte, Kreditkarte (Visa/Mastercard) und sogar kontaktlos per Handy bezahlen."},
-        {"keywords": ["parkplatz", "parken", "auto", "stellplatz"], "antwort": "Vor unserem Salon befinden sich kostenlose Parkplätze. Alternativ erreichen Sie uns auch gut mit den öffentlichen Verkehrsmitteln."},
-        {"keywords": ["waschen", "föhnen", "styling", "legen"], "antwort": "Natürlich – wir bieten Waschen, Föhnen und individuelles Styling an. Perfekt auch für Events oder Fotoshootings."},
-        {"keywords": ["färben", "farbe", "farben", "strähnen", "blondieren", "haartönung"], "antwort": "Wir färben und tönen Haare in allen Farben, inklusive Strähnen, Balayage und Blondierungen. Unsere Stylisten beraten Sie individuell."},
-        {"keywords": ["dauerwelle", "dauerwellen", "lockenfrisuren", "locken", "lockenfrisur"], "antwort": "Ja, wir bieten auch Dauerwellen und Locken-Stylings an."},
-        {"keywords": ["hochzeit", "brautfrisur", "brautfrisuren", "hochsteckfrisur"], "antwort": "Wir stylen wunderschöne Braut- und Hochsteckfrisuren. Am besten buchen Sie hierfür rechtzeitig einen Probetermin."},
-        {"keywords": ["bart", "rasur", "bartpflege"], "antwort": "Für Herren bieten wir auch Bartpflege und Rasuren an."},
-        {"keywords": ["haarpflege", "produkte", "verkaufen", "shampoo", "pflege"], "antwort": "Wir verwenden hochwertige Markenprodukte und verkaufen auch Haarpflegeprodukte, Shampoos und Stylingprodukte im Salon."},
-        {"keywords": ["team", "stylist", "friseur", "mitarbeiter"], "antwort": "Unser Team besteht aus erfahrenen Stylisten, die regelmäßig an Weiterbildungen teilnehmen, um Ihnen die neuesten Trends anbieten zu können."},
-        {"keywords": ["wartezeit", "sofort", "heute", "spontan"], "antwort": "Kommen Sie gerne vorbei – manchmal haben wir auch spontan freie Termine. Am sichersten ist es aber, vorher kurz anzurufen unter 030-123456"},
-        {"keywords": ["verlängern", "extensions"], "antwort": "Ja, wir bieten auch Haarverlängerungen und Verdichtungen mit hochwertigen Extensions an."},
-        {"keywords": ["glätten", "keratin", "straightening"], "antwort": "Wir bieten professionelle Keratin-Glättungen für dauerhaft glatte und gepflegte Haare an."},
-        {"keywords": ["gutschein", "gutscheine", "verschenken", "geschenk"], "antwort": "Ja, Sie können bei uns Gutscheine kaufen – ideal als Geschenk für Freunde und Familie!"},
-        {"keywords": ["kinder", "kids", "jungen", "mädchen", "sohn", "tochter"], "antwort": "Natürlich schneiden wir auch Kinderhaare. Der Preis für einen Kinderhaarschnitt startet ab 15 €."},
-        {"keywords": ["hygiene", "corona", "masken", "sicherheit"], "antwort": "Ihre Gesundheit liegt uns am Herzen. Wir achten auf höchste Hygienestandards und desinfizieren regelmäßig unsere Arbeitsplätze."},
-        {"keywords": ["kontakt", "kontaktdaten", "telefonnummer", "telefon", "nummer", "anrufen"], "antwort": "Sie erreichen uns telefonisch unter 030-123456 oder per E-Mail unter info@friseur-muster.de."}
+        {
+            "id": 1,
+            "kategorie": "Öffnungszeiten",
+            "titel": "Öffnungszeiten",
+            "keywords": ["öffnungszeiten", "wann geöffnet", "wann offen", "arbeitszeit"],
+            "antwort": "Wir sind Montag–Freitag von 9:00 bis 18:00 Uhr und Samstag von 9:00 bis 14:00 Uhr für Sie da. Sonntag ist Ruhetag."
+        },
+        {
+            "id": 2,
+            "kategorie": "Terminbuchung",
+            "titel": "Termin vereinbaren",
+            "keywords": ["termin", "vereinbaren", "buchen", "reservieren", "online"],
+            "antwort": "Wenn Sie einen Termin vereinbaren möchten, geben Sie bitte zuerst Ihren vollständigen Namen ein."
+        },
+        {
+            "id": 3,
+            "kategorie": "Allgemein",
+            "titel": "Adresse",
+            "keywords": ["adresse", "wo", "anschrift", "finden", "lage"],
+            "antwort": "Unsere Adresse lautet: Musterstraße 12, 10115 Berlin. Wir sind zentral und gut erreichbar."
+        },
+        {
+            "id": 4,
+            "kategorie": "Preise",
+            "titel": "Preise und Kosten",
+            "keywords": ["preise", "kosten", "kostet", "gebühren", "haarschnitt", "herrenhaarschnitt", "damenhaarschnitt"],
+            "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie im Salon."
+        },
+        {
+            "id": 5,
+            "kategorie": "Zahlung",
+            "titel": "Zahlungsmethoden",
+            "keywords": ["zahlung", "karte", "bar", "visa", "mastercard", "paypal", "kartenzahlung", "kontaktlos", "bezahlen"],
+            "antwort": "Sie können bar, mit EC-Karte, Kreditkarte (Visa/Mastercard) und sogar kontaktlos per Handy bezahlen."
+        },
+        {
+            "id": 6,
+            "kategorie": "Allgemein",
+            "titel": "Parkmöglichkeiten",
+            "keywords": ["parkplatz", "parken", "auto", "stellplatz"],
+            "antwort": "Vor unserem Salon befinden sich kostenlose Parkplätze. Alternativ erreichen Sie uns auch gut mit den öffentlichen Verkehrsmitteln."
+        },
+        {
+            "id": 7,
+            "kategorie": "Services",
+            "titel": "Waschen und Föhnen",
+            "keywords": ["waschen", "föhnen", "styling", "legen"],
+            "antwort": "Natürlich – wir bieten Waschen, Föhnen und individuelles Styling an. Perfekt auch für Events oder Fotoshootings."
+        },
+        {
+            "id": 8,
+            "kategorie": "Services",
+            "titel": "Haare färben",
+            "keywords": ["färben", "farbe", "farben", "strähnen", "blondieren", "haartönung"],
+            "antwort": "Wir färben und tönen Haare in allen Farben, inklusive Strähnen, Balayage und Blondierungen. Unsere Stylisten beraten Sie individuell."
+        },
+        {
+            "id": 9,
+            "kategorie": "Services",
+            "titel": "Dauerwelle",
+            "keywords": ["dauerwelle", "dauerwellen", "lockenfrisuren", "locken", "lockenfrisur"],
+            "antwort": "Ja, wir bieten auch Dauerwellen und Locken-Stylings an."
+        },
+        {
+            "id": 10,
+            "kategorie": "Services",
+            "titel": "Braut- und Hochsteckfrisuren",
+            "keywords": ["hochzeit", "brautfrisur", "brautfrisuren", "hochsteckfrisur"],
+            "antwort": "Wir stylen wunderschöne Braut- und Hochsteckfrisuren. Am besten buchen Sie hierfür rechtzeitig einen Probetermin."
+        },
+        {
+            "id": 11,
+            "kategorie": "Services",
+            "titel": "Bartpflege",
+            "keywords": ["bart", "rasur", "bartpflege"],
+            "antwort": "Für Herren bieten wir auch Bartpflege und Rasuren an."
+        },
+        {
+            "id": 12,
+            "kategorie": "Produkte",
+            "titel": "Verkauf von Haarpflegeprodukten",
+            "keywords": ["haarpflege", "produkte", "verkaufen", "shampoo", "pflege"],
+            "antwort": "Wir verwenden hochwertige Markenprodukte und verkaufen auch Haarpflegeprodukte, Shampoos und Stylingprodukte im Salon."
+        },
+        {
+            "id": 13,
+            "kategorie": "Allgemein",
+            "titel": "Das Team",
+            "keywords": ["team", "stylist", "friseur", "mitarbeiter"],
+            "antwort": "Unser Team besteht aus erfahrenen Stylisten, die regelmäßig an Weiterbildungen teilnehmen, um Ihnen die neuesten Trends anbieten zu können."
+        },
+        {
+            "id": 14,
+            "kategorie": "Terminbuchung",
+            "titel": "Spontane Termine",
+            "keywords": ["wartezeit", "sofort", "heute", "spontan"],
+            "antwort": "Kommen Sie gerne vorbei – manchmal haben wir auch spontan freie Termine. Am sichersten ist es aber, vorher kurz anzurufen unter 030-123456"
+        },
+        {
+            "id": 15,
+            "kategorie": "Services",
+            "titel": "Haarverlängerung",
+            "keywords": ["verlängern", "extensions"],
+            "antwort": "Ja, wir bieten auch Haarverlängerungen und Verdichtungen mit hochwertigen Extensions an."
+        },
+        {
+            "id": 16,
+            "kategorie": "Services",
+            "titel": "Haar glätten",
+            "keywords": ["glätten", "keratin", "straightening"],
+            "antwort": "Wir bieten professionelle Keratin-Glättungen für dauerhaft glatte und gepflegte Haare an."
+        },
+        {
+            "id": 17,
+            "kategorie": "Produkte",
+            "titel": "Gutscheine kaufen",
+            "keywords": ["gutschein", "gutscheine", "verschenken", "geschenk"],
+            "antwort": "Ja, Sie können bei uns Gutscheine kaufen – ideal als Geschenk für Freunde und Familie!"
+        },
+        {
+            "id": 18,
+            "kategorie": "Services",
+            "titel": "Kinderhaarschnitt",
+            "keywords": ["kinder", "kids", "jungen", "mädchen", "sohn", "tochter"],
+            "antwort": "Natürlich schneiden wir auch Kinderhaare. Der Preis für einen Kinderhaarschnitt startet ab 15 €."
+        },
+        {
+            "id": 19,
+            "kategorie": "Hygiene",
+            "titel": "Hygienestandards",
+            "keywords": ["hygiene", "corona", "masken", "sicherheit"],
+            "antwort": "Ihre Gesundheit liegt uns am Herzen. Wir achten auf höchste Hygienestandards und desinfizieren regelmäßig unsere Arbeitsplätze."
+        },
+        {
+            "id": 20,
+            "kategorie": "Allgemein",
+            "titel": "Kontakt",
+            "keywords": ["kontakt", "kontaktdaten", "telefonnummer", "telefon", "nummer", "anrufen"],
+            "antwort": "Sie erreichen uns telefonisch unter 030-123456 oder per E-Mail unter info@friseur-muster.de."
+        }
     ],
     "fallback": "Das weiß ich leider nicht. Bitte rufen Sie uns direkt unter 030-123456 an, wir helfen Ihnen gerne persönlich weiter."
 }
@@ -204,3 +324,4 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

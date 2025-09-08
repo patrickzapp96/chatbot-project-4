@@ -118,7 +118,7 @@ faq_db = {
             "id": 15,
             "kategorie": "Services",
             "titel": "Haarverlängerung",
-            "keywords": ["verlängern", "extensions", "verlängerung", "haarverlängerung"],
+            "keywords": ["verlängern", "extensions", "haarverlängerungen", "verlängerung", "haarverlängerung"],
             "antwort": "Ja, wir bieten auch Haarverlängerungen und Verdichtungen mit hochwertigen Extensions an."
         },
         {
@@ -324,5 +324,6 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 

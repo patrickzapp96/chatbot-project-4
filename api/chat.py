@@ -111,14 +111,14 @@ faq_db = {
             "id": 14,
             "kategorie": "Terminbuchung",
             "titel": "Spontane Termine",
-            "keywords": ["warten", "wartezeit", "sofort", "heute", "spontan"],
+            "keywords": ["wartezeit", "sofort", "heute", "spontan"],
             "antwort": "Kommen Sie gerne vorbei – manchmal haben wir auch spontan freie Termine. Am sichersten ist es aber, vorher kurz anzurufen unter 030-123456"
         },
         {
             "id": 15,
             "kategorie": "Services",
             "titel": "Haarverlängerung",
-            "keywords": ["verlängern", "extensions", "haarverlängerungen", "verlängerung", "haarverlängerung"],
+            "keywords": ["verlängern", "extensions"],
             "antwort": "Ja, wir bieten auch Haarverlängerungen und Verdichtungen mit hochwertigen Extensions an."
         },
         {
@@ -268,6 +268,15 @@ def send_appointment_request(request_data):
         print(f"Fehler beim Senden der E-Mail: {e}")
         return False
 
+# Neue Funktion zum Protokollieren von nicht beantworteten Fragen
+def log_unanswered_query(query):
+    try:
+        with open("unanswered_queries.log", "a", encoding="utf-8") as f:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            f.write(f"[{timestamp}] UNANSWERED: {query}\n")
+    except Exception as e:
+        print(f"Fehler beim Schreiben der Log-Datei: {e}")
+
 @app.route('/api/chat', methods=['POST'])
 def chat_handler():
     try:
@@ -285,14 +294,17 @@ def chat_handler():
 
         # Überprüfe den aktuellen Konversationsstatus
         if current_state == "initial":
-            cleaned_message = re.sub(r'[^\w\s]', '', user_message)
-            user_words = set(cleaned_message.split())
-            best_match_score = 0
             
-            if any(keyword in user_message for keyword in ["termin buchen", "termin vereinbaren", "termin ausmachen", "termin buchen", "termin reservieren"]):
+            # WICHTIG: Prüfe zuerst auf Keywords für die Terminbuchung
+            if any(keyword in user_message for keyword in ["termin buchen", "termin vereinbaren", "termin ausmachen", "termin reservieren"]):
                 response_text = "Gerne. Wie lautet Ihr vollständiger Name?"
                 user_states[user_ip] = {"state": "waiting_for_name"}
             else:
+                # Führe die einfache Keyword-Suche durch
+                cleaned_message = re.sub(r'[^\w\s]', '', user_message)
+                user_words = set(cleaned_message.split())
+                best_match_score = 0
+                
                 for item in faq_db['fragen']:
                     keyword_set = set(item['keywords'])
                     intersection = user_words.intersection(keyword_set)
@@ -301,7 +313,11 @@ def chat_handler():
                     if score > best_match_score:
                         best_match_score = score
                         response_text = item['antwort']
-            
+                
+                # Wenn kein Match gefunden wurde, logge die Anfrage
+                if best_match_score == 0:
+                    log_unanswered_query(user_message)
+
         elif current_state == "waiting_for_name":
             user_states[user_ip]["name"] = user_message
             response_text = "Vielen Dank. Wie lautet Ihre E-Mail-Adresse?"
@@ -366,10 +382,3 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
-
-
-
-

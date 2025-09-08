@@ -289,7 +289,7 @@ def chat_handler():
             user_words = set(cleaned_message.split())
             best_match_score = 0
             
-            if any(keyword in user_message for keyword in ["termin", "buchen", "vereinbaren"]):
+            if any(keyword in user_message for keyword in ["termin buchen", "termin vereinbaren", "termin ausmachen", "termin buchen", "termin reservieren"]):
                 response_text = "Gerne. Wie lautet Ihr vollständiger Name?"
                 user_states[user_ip] = {"state": "waiting_for_name"}
             else:
@@ -366,6 +366,7 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 

@@ -1,17 +1,11 @@
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import smtplib
 from email.message import EmailMessage
 import re
-from datetime import datetime, timedelta
-
-# Neue Importe für Google Calendar
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
+from icalendar import Calendar, Event # Importiert das iCalendar-Modul
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -19,240 +13,194 @@ CORS(app)
 # Globale Variable zur Speicherung des Konversationsstatus
 user_states = {}
 
-# Konfiguration für Google Kalender API (Bitte anpassen!)
-# FÜR LOKALE ENTWICKLUNG: Ersetze die Platzhalter mit deinen tatsächlichen Werten
-# VOR DEM HOCHLADEN AUF VERCEL: Ändere diese wieder zu os.environ.get(...)
-CLIENT_ID = "544618140213-ganesqq599qjbeeta4qspalb4blui80j.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
-REDIRECT_URI = "http://localhost:5000/auth_callback"
-SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
-
 # FAQ-Datenbank
 faq_db = {
     "fragen": [
         {"keywords": ["öffnungszeiten", "wann geöffnet", "wann offen", "arbeitszeit"], "antwort": "Wir sind Montag–Freitag von 9:00 bis 18:00 Uhr und Samstag von 9:00 bis 14:00 Uhr für Sie da. Sonntag ist Ruhetag."},
-        {"keywords": ["termin", "vereinbaren", "buchen", "reservieren", "online"], "antwort": "Wenn Sie einen Termin vereinbaren möchten, geben Sie bitte zuerst Ihren vollständigen Namen ein."},
-        {"keywords": ["adresse", "wo", "anschrift", "finden", "lage"], "antwort": "Unsere Adresse lautet: Musterstraße 12, 10115 Berlin. Wir sind zentral und gut erreichbar."},
-        {"keywords": ["preise", "kosten", "gebühren", "haarschnitt"], "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie im Salon."},
-        {"keywords": ["zahlung", "karte", "bar", "visa", "mastercard", "paypal"], "antwort": "Sie können bar, mit EC-Karte, Kreditkarte (Visa/Mastercard) und sogar kontaktlos per Handy bezahlen."},
-        {"keywords": ["parkplatz", "parken", "auto", "stellplatz"], "antwort": "Vor unserem Salon befinden sich kostenlose Parkplätze. Alternativ erreichen Sie uns auch gut mit den öffentlichen Verkehrsmitteln."},
-        {"keywords": ["waschen", "föhnen", "styling", "legen"], "antwort": "Natürlich – wir bieten Waschen, Föhnen und individuelles Styling an. Perfekt auch für Events oder Fotoshootings."},
-        {"keywords": ["färben", "farbe", "strähnen", "blondieren", "haartönung"], "antwort": "Wir färben und tönen Haare in allen Farben, inklusive Strähnen, Balayage und Blondierungen. Unsere Stylisten beraten Sie individuell."},
-        {"keywords": ["dauerwelle", "locken"], "antwort": "Ja, wir bieten auch Dauerwellen und Locken-Stylings an."},
-        {"keywords": ["hochzeit", "brautfrisur", "hochsteckfrisur"], "antwort": "Wir stylen wunderschöne Braut- und Hochsteckfrisuren. Am besten buchen Sie hierfür rechtzeitig einen Probetermin."},
+        [cite_start]{"keywords": ["termin", "vereinbaren", "buchen", "reservieren", "online"], "antwort": "Wenn Sie einen Termin vereinbaren möchten, geben Sie bitte zuerst Ihren vollständigen Namen ein." [cite: 80]},
+        [cite_start]{"keywords": ["adresse", "wo", "anschrift", "finden", "lage"], "antwort": "Unsere Adresse lautet: Musterstraße 12, 10115 Berlin. Wir sind zentral und gut erreichbar." [cite: 80]},
+        [cite_start]{"keywords": ["preise", "kosten", "kostet", "gebühren", "haarschnitt", "herrenhaarschnitt", "damenhaarschnitt"], "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie im Salon." [cite: 81]},
+        [cite_start]{"keywords": ["zahlung", "karte", "bar", "visa", "mastercard", "paypal", "kartenzahlung", "kontaktlos", "bezahlen"], "antwort": "Sie können bar, mit EC-Karte, Kreditkarte (Visa/Mastercard) und sogar kontaktlos per Handy bezahlen." [cite: 81]},
+        [cite_start]{"keywords": ["parkplatz", "parken", "auto", "stellplatz"], "antwort": "Vor unserem Salon befinden sich kostenlose Parkplätze. Alternativ erreichen Sie uns auch gut mit den öffentlichen Verkehrsmitteln." [cite: 82]},
+        [cite_start]{"keywords": ["waschen", "föhnen", "styling", "legen"], "antwort": "Natürlich – wir bieten Waschen, Föhnen und individuelles Styling an. Perfekt auch für Events oder Fotoshootings." [cite: 83]},
+        [cite_start]{"keywords": ["färben", "farbe", "farben", "strähnen", "blondieren", "haartönung"], "antwort": "Wir färben und tönen Haare in allen Farben, inklusive Strähnen, Balayage und Blondierungen. Unsere Stylisten beraten Sie individuell." [cite: 84]},
+        {"keywords": ["dauerwelle", "dauerwellen", "lockenfrisuren", "locken", "lockenfrisur"], "antwort": "Ja, wir bieten auch Dauerwellen und Locken-Stylings an."},
+        [cite_start]{"keywords": ["hochzeit", "brautfrisur", "brautfrisuren", "hochsteckfrisur"], "antwort": "Wir stylen wunderschöne Braut- und Hochsteckfrisuren. Am besten buchen Sie hierfür rechtzeitig einen Probetermin." [cite: 85]},
         {"keywords": ["bart", "rasur", "bartpflege"], "antwort": "Für Herren bieten wir auch Bartpflege und Rasuren an."},
         {"keywords": ["haarpflege", "produkte", "verkaufen", "shampoo", "pflege"], "antwort": "Wir verwenden hochwertige Markenprodukte und verkaufen auch Haarpflegeprodukte, Shampoos und Stylingprodukte im Salon."},
         {"keywords": ["team", "stylist", "friseur", "mitarbeiter"], "antwort": "Unser Team besteht aus erfahrenen Stylisten, die regelmäßig an Weiterbildungen teilnehmen, um Ihnen die neuesten Trends anbieten zu können."},
-        {"keywords": ["wartezeit", "sofort", "heute"], "antwort": "Kommen Sie gerne vorbei – manchmal haben wir auch spontan freie Termine. Am sichersten ist es aber, vorher kurz anzurufen."},
+        [cite_start]{"keywords": ["wartezeit", "sofort", "heute", "spontan"], "antwort": "Kommen Sie gerne vorbei – manchmal haben wir auch spontan freie Termine. Am sichersten ist es aber, vorher kurz anzurufen unter 030-123456" [cite: 86, 87]},
         {"keywords": ["verlängern", "extensions"], "antwort": "Ja, wir bieten auch Haarverlängerungen und Verdichtungen mit hochwertigen Extensions an."},
         {"keywords": ["glätten", "keratin", "straightening"], "antwort": "Wir bieten professionelle Keratin-Glättungen für dauerhaft glatte und gepflegte Haare an."},
-        {"keywords": ["gutschein", "verschenken", "geschenk"], "antwort": "Ja, Sie können bei uns Gutscheine kaufen – ideal als Geschenk für Freunde und Familie!"},
-        {"keywords": ["kinder", "kids", "jungen", "mädchen"], "antwort": "Natürlich schneiden wir auch Kinderhaare. Der Preis für einen Kinderhaarschnitt startet ab 15 €."},
-        {"keywords": ["hygiene", "corona", "masken", "sicherheit"], "antwort": "Ihre Gesundheit liegt uns am Herzen. Wir achten auf höchste Hygienestandards und desinfizieren regelmäßig unsere Arbeitsplätze."},
-        {"keywords": ["kontakt", "telefon", "nummer", "anrufen"], "antwort": "Sie erreichen uns telefonisch unter 030-123456 oder per E-Mail unter info@friseur-muster.de."}
-    ]
+        {"keywords": ["gutschein", "gutscheine", "verschenken", "geschenk"], "antwort": "Ja, Sie können bei uns Gutscheine kaufen – ideal als Geschenk für Freunde und Familie!"},
+        [cite_start]{"keywords": ["kinder", "kids", "jungen", "mädchen", "sohn", "tochter"], "antwort": "Natürlich schneiden wir auch Kinderhaare. Der Preis für einen Kinderhaarschnitt startet ab 15 €." [cite: 88]},
+        [cite_start]{"keywords": ["hygiene", "corona", "masken", "sicherheit"], "antwort": "Ihre Gesundheit liegt uns am Herzen. Wir achten auf höchste Hygienestandards und desinfizieren regelmäßig unsere Arbeitsplätze." [cite: 89]},
+        {"keywords": ["kontakt", "kontaktdaten", "telefonnummer", "telefon", "nummer", "anrufen"], "antwort": "Sie erreichen uns telefonisch unter 030-123456 oder per E-Mail unter info@friseur-muster.de."}
+    ],
+    [cite_start]"fallback": "Das weiß ich leider nicht. Bitte rufen Sie uns direkt unter 030-123456 an, wir helfen Ihnen gerne persönlich weiter." [cite: 90]
 }
 
-# Hilfsfunktion, um Keywords in einer Nachricht zu finden
-def find_keywords(message):
-    message = message.lower()
-    for entry in faq_db["fragen"]:
-        for keyword in entry["keywords"]:
-            if keyword in message:
-                return entry["antwort"]
-    return None
+def send_appointment_request(request_data):
+    """
+    Diese Funktion sendet eine E-Mail mit der Terminanfrage und einem Kalenderanhang.
+    [cite_start]""" [cite: 91]
+    sender_email = os.environ.get("SENDER_EMAIL")
+    sender_password = os.environ.get("SENDER_PASSWORD")
+    receiver_email = os.environ.get("RECEIVER_EMAIL")
 
-# Funktion zur Validierung der E-Mail-Adresse
-def is_valid_email(email):
-    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+    if not all([sender_email, sender_password, receiver_email]):
+        print("E-Mail-Konfiguration fehlt. E-Mail kann nicht gesendet werden.")
+        return False
 
-def create_calendar_event(data):
-    creds = None
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            return False # Autorisierung erforderlich
+    msg = EmailMessage()
+    msg['Subject'] = "Neue Terminanfrage über den Chatbot"
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Reply-To'] = request_data.get('email', 'no-reply@example.com')
+
+    # Text der E-Mail
+    email_text = f"""
+    Hallo Geschäftsführer,
     
-    try:
-        service = build('calendar', 'v3', credentials=creds)
-        
-        event_body = {
-            'summary': f'Termin: {data["service"]}',
-            'description': f'Name: {data["name"]}\nE-Mail: {data["email"]}',
-            'start': {
-                'dateTime': data["date_time"],
-                'timeZone': 'Europe/Berlin',
-            },
-            'end': {
-                'dateTime': data["date_time"],
-                'timeZone': 'Europe/Berlin',
-            },
-            'attendees': [
-                {'email': data["email"]},
-            ],
-            'reminders': {
-                'useDefault': False,
-                'overrides': [
-                    {'method': 'email', 'minutes': 24 * 60},
-                    {'method': 'popup', 'minutes': 10},
-                ],
-            },
-        }
+    Sie haben eine neue Terminanfrage über den Chatbot erhalten:
+    
+    Name: {request_data.get('name', 'N/A')}
+    E-Mail: {request_data.get('email', 'N/A')}
+    Service: {request_data.get('service', 'N/A')}
+    Datum & Uhrzeit: {request_data.get('date_time', 'N/A')}
+    
+    Bitte bestätigen Sie diesen Termin manuell im Kalender oder kontaktieren Sie den Kunden direkt.
+    [cite_start]""" [cite: 92]
+    msg.set_content(email_text)
 
-        event = service.events().insert(calendarId='primary', body=event_body).execute()
+    # Erstelle den Kalendereintrag
+    cal = Calendar()
+    event = Event()
+
+    try:
+        start_time_str = request_data.get('date_time')
+        # Annahme: request_data['date_time'] hat das Format 'DD.MM.YYYY HH:MM'
+        start_time = datetime.strptime(start_time_str, '%d.%m.%Y %H:%M')
+    except (ValueError, TypeError) as e:
+        print(f"Fehler bei der Konvertierung des Datums: {e}")
+        return False
+
+    event.add('dtstart', start_time)
+    event.add('summary', f"Termin mit {request_data.get('name', 'Kunde')}")
+    event.add('description', f"Service: {request_data.get('service', 'N/A')}\nE-Mail: {request_data.get('email', 'N/A')}")
+    event.add('location', 'Musterstraße 12, 10115 Berlin')
+    
+    cal.add_component(event)
+
+    # Erstelle einen Anhang aus dem Kalenderobjekt
+    ics_file = cal.to_ical()
+    msg.add_attachment(ics_file, maintype='text', subtype='calendar', filename='Termin.ics')
+    
+    # Sende die E-Mail
+    try:
+        with smtplib.SMTP_SSL("smtp.web.de", 465) as smtp:
+            smtp.login(sender_email, sender_password)
+            smtp.send_message(msg)
         return True
-    
-    except HttpError as error:
-        print(f"Ein HTTP-Fehler ist aufgetreten: {error}")
-        return False
     except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
+        [cite_start]print(f"Fehler beim Senden der E-Mail: {e}") [cite: 93]
         return False
 
-# Die Route, die den Google OAuth-Flow startet
-@app.route("/authorize")
-def authorize():
-    flow = InstalledAppFlow.from_client_config(
-        {
-            "web": {
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "redirect_uris": [REDIRECT_URI],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://accounts.google.com/o/oauth2/token",
-            }
-        },
-        SCOPES,
-    )
-    authorization_url, state = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true')
-    return redirect(authorization_url)
-
-# Die Route, zu der Google zurückleitet
-@app.route("/auth_callback")
-def auth_callback():
-    code = request.args.get('code')
-    flow = InstalledAppFlow.from_client_config(
-        {
-            "web": {
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "redirect_uris": [REDIRECT_URI],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://accounts.google.com/o/oauth2/token",
-            }
-        },
-        SCOPES,
-        state=request.args.get('state'),
-    )
-    flow.fetch_token(code=code)
-    creds = flow.credentials
-    with open("token.json", "w") as token:
-        token.write(creds.to_json())
-    return "Authentifizierung erfolgreich! Die token.json-Datei wurde erstellt. Sie können dieses Fenster nun schließen."
-
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    user_message = request.json.get("message", "")
-    user_ip = request.remote_addr
-    user_message_lower = user_message.lower()
-
-    if user_ip not in user_states:
-        user_states[user_ip] = {"state": "initial"}
-    
-    current_state = user_states[user_ip]["state"]
-    response_text = ""
-
+@app.route('/api/chat', methods=['POST'])
+def chat_handler():
     try:
-        if current_state == "initial":
-            if "termin" in user_message_lower:
-                response_text = "Gerne! Für eine Terminanfrage benötige ich Ihren Namen, Ihre E-Mail, die gewünschte Dienstleistung, das Datum und die Uhrzeit."
-                user_states[user_ip]["state"] = "waiting_for_name"
-            else:
-                faq_answer = find_keywords(user_message)
-                if faq_answer:
-                    response_text = faq_answer
-                else:
-                    response_text = "Entschuldigung, ich habe Sie nicht verstanden. Kann ich Ihnen anderweitig behilflich sein?"
+        if not request.is_json:
+            return jsonify({"error": "Fehlende JSON-Nachricht"}), 400
+
+        user_message = request.json.get('message', '').lower()
+        user_ip = request.remote_addr
         
+        if user_ip not in user_states:
+            [cite_start]user_states[user_ip] = {"state": "initial"} [cite: 94]
+            
+        current_state = user_states[user_ip]["state"]
+        [cite_start]response_text = faq_db['fallback'] [cite: 90]
+
+        # Überprüfe den aktuellen Konversationsstatus
+        if current_state == "initial":
+            [cite_start]cleaned_message = re.sub(r'[^\w\s]', '', user_message) [cite: 95]
+            user_words = set(cleaned_message.split())
+            best_match_score = 0
+            
+            if any(keyword in user_message for keyword in ["termin", "buchen", "vereinbaren"]):
+                [cite_start]response_text = "Gerne. Wie lautet Ihr vollständiger Name?" [cite: 96]
+                [cite_start]user_states[user_ip] = {"state": "waiting_for_name"} [cite: 96]
+            else:
+                for item in faq_db['fragen']:
+                    keyword_set = set(item['keywords'])
+                    intersection = user_words.intersection(keyword_set)
+                    [cite_start]score = len(intersection) [cite: 97]
+                    
+                    if score > best_match_score:
+                        best_match_score = score
+                        [cite_start]response_text = item['antwort'] [cite: 98]
+            
         elif current_state == "waiting_for_name":
             user_states[user_ip]["name"] = user_message
-            response_text = "Vielen Dank! Bitte geben Sie nun Ihre E-Mail-Adresse ein."
-            user_states[user_ip]["state"] = "waiting_for_email"
-            
+            [cite_start]response_text = "Vielen Dank. Wie lautet Ihre E-Mail-Adresse?" [cite: 99]
+            [cite_start]user_states[user_ip]["state"] = "waiting_for_email" [cite: 99]
+
         elif current_state == "waiting_for_email":
-            if is_valid_email(user_message):
+            email_regex = r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
+            if re.match(email_regex, user_message):
                 user_states[user_ip]["email"] = user_message
-                response_text = "Alles klar. Welche Dienstleistung wünschen Sie?"
-                user_states[user_ip]["state"] = "waiting_for_service"
+                [cite_start]response_text = "Alles klar. Welchen Service möchten Sie buchen (z.B. Haarschnitt, Färben, Bartpflege)?" [cite: 100, 101]
+                [cite_start]user_states[user_ip]["state"] = "waiting_for_service" [cite: 101]
             else:
-                response_text = "Das scheint keine gültige E-Mail-Adresse zu sein. Bitte versuchen Sie es erneut."
+                [cite_start]response_text = "Das scheint keine gültige E-Mail-Adresse zu sein. Bitte geben Sie eine korrekte E-Mail-Adresse ein." [cite: 102]
         
         elif current_state == "waiting_for_service":
             user_states[user_ip]["service"] = user_message
-            response_text = "Danke. Welches Datum und welche Uhrzeit schwebt Ihnen vor? (z.B. 'Freitag, 15:00 Uhr')"
-            user_states[user_ip]["state"] = "waiting_for_date_time"
+            [cite_start]response_text = "Wann (Datum und Uhrzeit) würden Sie den Termin gerne wahrnehmen?" [cite: 102]
+            [cite_start]user_states[user_ip]["state"] = "waiting_for_datetime" [cite: 103]
+
+        elif current_state == "waiting_for_datetime":
+            user_states[user_ip]["date_time"] = user_message
             
-        elif current_state == "waiting_for_date_time":
-            # Vereinfachte Logik zur Verarbeitung von Datum und Uhrzeit
-            try:
-                # Versuch, Datum und Uhrzeit zu extrahieren
-                today = datetime.now()
-                # Dummy-Logik, um Datum und Uhrzeit zu extrahieren
-                # Du musst dies durch eine robustere Logik ersetzen
-                date_time_str = user_message # Annahme: Nutzer gibt ein parsebares Format ein
-                date_time = datetime.now().isoformat()
-                
-                user_states[user_ip]["date_time"] = date_time
-                
-                # Bestätigungsnachricht an den Benutzer senden
-                response_text = (
-                    f"Ich habe folgende Informationen notiert:\n"
-                    f"Name: {user_states[user_ip]['name']}\n"
-                    f"E-Mail: {user_states[user_ip]['email']}\n"
-                    f"Dienstleistung: {user_states[user_ip]['service']}\n"
-                    f"Datum/Uhrzeit: {date_time_str}\n\n"
-                    f"Ist das korrekt? Bitte antworten Sie mit 'Ja' oder 'Nein'."
-                )
-                user_states[user_ip]["state"] = "waiting_for_confirmation"
-            except:
-                response_text = "Ich konnte Datum und Uhrzeit nicht verstehen. Bitte versuchen Sie es in einem klaren Format wie 'Freitag, 15:00 Uhr' erneut."
-                
+            data = user_states[user_ip]
+            response_text = (
+                [cite_start]f"Bitte überprüfen Sie Ihre Angaben:\n" [cite: 104]
+                f"Name: {data.get('name', 'N/A')}\n"
+                f"E-Mail: {data.get('email', 'N/A')}\n"
+                f"Service: {data.get('service', 'N/A')}\n"
+                f"Datum und Uhrzeit: {data.get('date_time', 'N/A')}\n\n"
+                [cite_start]f"Möchten Sie die Anfrage so absenden? Bitte antworten Sie mit 'Ja' oder 'Nein'." [cite: 105]
+            )
+            [cite_start]user_states[user_ip]["state"] = "waiting_for_confirmation" [cite: 105]
+        
         elif current_state == "waiting_for_confirmation":
-            if user_message_lower in ["ja", "ja bitte", "korrekt"]:
+            if user_message in ["ja", "ja, das stimmt", "bestätigen", "ja bitte"]:
                 request_data = {
                     "name": user_states[user_ip].get("name", "N/A"),
                     "email": user_states[user_ip].get("email", "N/A"),
                     "service": user_states[user_ip].get("service", "N/A"),
                     "date_time": user_states[user_ip].get("date_time", "N/A"),
-                }
+                [cite_start]} [cite: 106, 107]
                 
-                # Versuch, ein Kalender-Event zu erstellen
-                if create_calendar_event(request_data):
-                    response_text = "Vielen Dank! Ihr Termin wurde erfolgreich in den Kalender eingetragen."
+                if send_appointment_request(request_data):
+                    [cite_start]response_text = "Vielen Dank! Ihre Terminanfrage wurde erfolgreich übermittelt. Wir werden uns in Kürze bei Ihnen melden." [cite: 108]
                 else:
-                    response_text = "Entschuldigung, der Termin konnte nicht im Kalender eingetragen werden. Bitte rufen Sie uns direkt an."
+                    [cite_start]response_text = "Entschuldigung, es gab ein Problem beim Senden Ihrer Anfrage. Bitte rufen Sie uns direkt an." [cite: 109]
                 
-                user_states[user_ip]["state"] = "initial"
+                [cite_start]user_states[user_ip]["state"] = "initial" [cite: 109]
             
-            elif user_message_lower in ["nein", "abbrechen", "falsch"]:
-                response_text = "Die Terminanfrage wurde abgebrochen. Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'."
-                user_states[user_ip]["state"] = "initial"
+            elif user_message in ["nein", "abbrechen", "falsch"]:
+                [cite_start]response_text = "Die Terminanfrage wurde abgebrochen. Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'." [cite: 110, 111]
+                [cite_start]user_states[user_ip]["state"] = "initial" [cite: 111]
             
             else:
-                response_text = "Bitte antworten Sie mit 'Ja' oder 'Nein'."
+                [cite_start]response_text = "Bitte antworten Sie mit 'Ja' oder 'Nein'." [cite: 112]
         
-        return jsonify({"reply": response_text})
+        [cite_start]return jsonify({"reply": response_text}) [cite: 112]
 
     except Exception as e:
-        print(f"Ein Fehler ist aufgetreten: {e}")
+        [cite_start]print(f"Ein Fehler ist aufgetreten: {e}") [cite: 112]
         return jsonify({"error": "Interner Serverfehler"}), 500
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
-
-
+if __name__ == '__main__':
+    app.run(debug=True)

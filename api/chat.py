@@ -215,7 +215,7 @@ def send_appointment_request(request_data):
         return False
 
     msg = EmailMessage()
-    msg['Subject'] = "Neue Terminanfrage über den Chatbot"
+    msg['Subject'] = "Neue Terminanfrage"
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Reply-To'] = request_data.get('email', 'no-reply@example.com')
@@ -224,7 +224,7 @@ def send_appointment_request(request_data):
     email_text = f"""
     Hallo Geschäftsführer,
     
-    Sie haben eine neue Terminanfrage über den Chatbot erhalten:
+    Sie haben eine neue Terminanfrage erhalten:
     
     Name: {request_data.get('name', 'N/A')}
     E-Mail: {request_data.get('email', 'N/A')}
@@ -366,6 +366,7 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 

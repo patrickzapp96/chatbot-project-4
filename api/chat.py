@@ -27,8 +27,8 @@ faq_db = {
             "id": 2,
             "kategorie": "Terminbuchung",
             "titel": "Termin vereinbaren",
-            "keywords": ["termin buchen", "termin vereinbaren", "termin ausmachen", "buchen", "vereinbaren", "ausmachen", "reservieren", "online"],
-            "antwort": "Wenn Sie einen Termin vereinbaren möchten, geben Sie bitte zuerst Ihren vollständigen Namen ein."
+            "keywords": ["termin", "buchen", "vereinbaren", "ausmachen", "reservieren", "online"],
+            "antwort": "Wenn Sie einen Termin vereinbaren möchten, geben Sie bitte "termin vereinbaren" ein."
         },
         {
             "id": 3,
@@ -392,3 +392,4 @@ def chat_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

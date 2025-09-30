@@ -27,8 +27,7 @@ faq_db = {
             "id": 1,
             "kategorie": "Öffnungszeiten",
             "titel": "Öffnungszeiten",
-            "keywords": ["öffnungszeiten", 
-"wann", "geöffnet", "offen", "arbeitszeit"],
+            "keywords": ["öffnungszeiten", "wann", "geöffnet", "offen", "arbeitszeit"],
             "antwort": "Wir sind Montag–Freitag von 9:00 bis 18:00 Uhr und Samstag von 9:00 bis 14:00 Uhr für Sie da. Sonntag ist Ruhetag."
         },
         {
@@ -50,8 +49,7 @@ faq_db = {
             "kategorie": "Preise",
             "titel": "Preise und Kosten",
             "keywords": ["preise", "kosten", "kostet", "gebühren", "haarschnitt", "herrenhaarschnitt", "damenhaarschnitt"],
-            "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie 
-im Salon."
+            "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie im Salon."
         },
         {
             "id": 5,
@@ -122,7 +120,6 @@ im Salon."
             "titel": "Spontane Termine",
             "keywords": ["warten", "wartezeit", "sofort", "heute", "spontan"],
             "antwort": "Kommen Sie gerne vorbei – manchmal haben wir auch spontan freie Termine. Am sichersten ist es aber, vorher kurz anzurufen unter 030-123456"
- 
         },
         {
             "id": 15,
@@ -185,16 +182,14 @@ im Salon."
             "kategorie": "Services",
             "titel": "Trockenhaarschnitt",
             "keywords": ["trockenhaarschnitt", "trockenschnitt", "ohne waschen", "schnell"],
-            "antwort": "Ein Trockenhaarschnitt ist bei uns nach Absprache möglich. Er ist ideal, wenn Sie wenig Zeit haben oder einfach nur die Spitzen geschnitten haben 
-möchten."
+            "antwort": "Ein Trockenhaarschnitt ist bei uns nach Absprache möglich. Er ist ideal, wenn Sie wenig Zeit haben oder einfach nur die Spitzen geschnitten haben möchten."
         },
         {
             "id": 24,
             "kategorie": "Terminbuchung",
             "titel": "Termin stornieren",
             "keywords": ["stornieren", "termin stornieren", "termin absagen", "verschieben", "nicht kommen"],
-            "antwort": "Sie können Ihren Termin bis zu 24 Stunden vorher telefonisch unter 030-123456 oder per E-Mail an info@friseur-muster.de absagen. 
-Bei Nichterscheinen behalten wir uns vor, eine Ausfallgebühr zu berechnen."
+            "antwort": "Sie können Ihren Termin bis zu 24 Stunden vorher telefonisch unter 030-123456 oder per E-Mail an info@friseur-muster.de absagen. Bei Nichterscheinen behalten wir uns vor, eine Ausfallgebühr zu berechnen."
         },
         {
             "id": 25,
@@ -276,8 +271,7 @@ def send_appointment_request(request_data):
         print(f"Fehler bei der Konvertierung des Datums: {e}")
         return False
 
-    event.add('dtstart', 
-start_time)
+    event.add('dtstart', start_time)
     event.add('summary', f"Termin mit {request_data.get('name', 'Kunde')} bei {request_data.get('staff', 'Team')}")
     event.add('description', f"Service: {request_data.get('service', 'N/A')}\nE-Mail: {request_data.get('email', 'N/A')}\nMitarbeiter: {request_data.get('staff', 'Keine Angabe')}")
     event.add('location', 'Musterstraße 12, 10115 Berlin')
@@ -389,7 +383,6 @@ def chat_handler():
         elif current_state == "waiting_for_staff":
             staff_choice = user_message.lower()
             if staff_choice in staff_db or staff_choice in ["egal", "keine angabe"]:
-                # Mitarbeiter-Namen mit Großbuchstaben beginnen lassen für die Anzeige in der Zusammenfassung
                 user_states[user_ip]["staff"] = staff_choice.title()
                 response_text = "Wann würden Sie den Termin gerne wahrnehmen?\nBitte geben Sie das Datum und die Uhrzeit im Format **TT.MM.JJJJ HH:MM** ein, z.B.\n**15.10.2025 14:00**."
                 user_states[user_ip]["state"] = "waiting_for_datetime"
@@ -442,8 +435,3 @@ def chat_handler():
     except Exception as e:
         print(f"Ein Fehler ist aufgetreten: {e}")
         return jsonify({"error": "Interner Serverfehler"}), 500
-
-# WICHTIG: Die lokale Ausführung wurde für das Vercel-Deployment entfernt.
-# Wenn Sie den Code lokal testen möchten, fügen Sie diesen Block wieder hinzu:
-# if __name__ == '__main__':
-#     app.run(debug=True)

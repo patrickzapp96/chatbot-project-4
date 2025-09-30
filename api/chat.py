@@ -28,8 +28,7 @@ faq_db = {
             "id": 1,
             "kategorie": "Öffnungszeiten",
             "titel": "Öffnungszeiten",
-            "keywords": ["öffnungszeiten", 
-"wann", "geöffnet", "offen", "arbeitszeit"],
+            "keywords": ["öffnungszeiten", "wann", "geöffnet", "offen", "arbeitszeit"],
             "antwort": "Wir sind Montag–Freitag von 9:00 bis 18:00 Uhr und Samstag von 9:00 bis 14:00 Uhr für Sie da. Sonntag ist Ruhetag."
 },
         {
@@ -51,8 +50,7 @@ faq_db = {
             "kategorie": "Preise",
             "titel": "Preise und Kosten",
             "keywords": ["preise", "kosten", "kostet", "gebühren", "haarschnitt", "herrenhaarschnitt", "damenhaarschnitt"],
-            "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie 
-im Salon."
+            "antwort": "Ein Damenhaarschnitt kostet ab 25 €, Herrenhaarschnitt ab 20 €. Färben ab 45 €. Die komplette Preisliste finden Sie im Salon."
         },
         {
             "id": 5,
@@ -469,3 +467,4 @@ Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termi
 
 if __name__ == '__main__':
     app.run(debug=True)
+

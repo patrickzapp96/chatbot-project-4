@@ -326,8 +326,7 @@ def chat_handler():
             # WICHTIG: Prüfe zuerst auf Keywords für die Terminbuchung
     
             if any(keyword in user_message for keyword in ["termin buchen", "termin vereinbaren", "termin ausmachen", "termin reservieren"]):
-                response_text = "Möchten Sie einen Termin vereinbaren?
-Bitte antworten Sie mit 'Ja' oder 'Nein'."
+                response_text = "Möchten Sie einen Termin vereinbaren?Bitte antworten Sie mit 'Ja' oder 'Nein'."
                 user_states[user_ip] = {"state": "waiting_for_confirmation_appointment"}
             else:
                 # Führe die einfache Keyword-Suche durch
@@ -358,12 +357,10 @@ Bitte antworten Sie mit 'Ja' oder 'Nein'."
         elif current_state == 
 "waiting_for_confirmation_appointment":
             if user_message in ["ja", "ja, das stimmt", "bestätigen", "ja bitte"]:
-                response_text = "Gerne.
-Wie lautet Ihr vollständiger Name?"
+                response_text = "Gerne. Wie lautet Ihr vollständiger Name?"
                 user_states[user_ip]["state"] = "waiting_for_name"
             elif user_message in ["nein", "abbrechen", "falsch"]:
-                response_text = "Die Terminanfrage wurde abgebrochen.
-Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'."
+                response_text = "Die Terminanfrage wurde abgebrochen. Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'."
                 user_states[user_ip]["state"] = "initial"
             else:
                 response_text = "Bitte antworten Sie mit 'Ja' oder 'Nein'."
@@ -371,8 +368,7 @@ Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termi
         elif current_state == "waiting_for_name":
        
             user_states[user_ip]["name"] = user_message
-            response_text = "Vielen Dank.
-Wie lautet Ihre E-Mail-Adresse?"
+            response_text = "Vielen Dank. Wie lautet Ihre E-Mail-Adresse?"
             user_states[user_ip]["state"] = "waiting_for_email"
 
         elif current_state == "waiting_for_email":
@@ -380,12 +376,10 @@ Wie lautet Ihre E-Mail-Adresse?"
             email_regex = r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
             if re.match(email_regex, user_message):
                 user_states[user_ip]["email"] = user_message
-                response_text = "Alles klar.
-Welchen Service möchten Sie buchen (z.B. Haarschnitt, Färben, Bartpflege)?"
+                response_text = "Alles klar. Welchen Service möchten Sie buchen (z.B. Haarschnitt, Färben, Bartpflege)?"
                 user_states[user_ip]["state"] = "waiting_for_service"
             else:
-                response_text = "Das scheint keine gültige E-Mail-Adresse zu sein.
-Bitte geben Sie eine korrekte E-Mail-Adresse ein."
+                response_text = "Das scheint keine gültige E-Mail-Adresse zu sein. Bitte geben Sie eine korrekte E-Mail-Adresse ein."
         
         elif current_state == "waiting_for_service":
             user_states[user_ip]["service"] = user_message
@@ -400,14 +394,11 @@ Oder geben Sie 'Egal' ein."
             staff_choice = user_message.lower()
             if staff_choice in staff_db or staff_choice in ["egal", "keine angabe"]:
                 user_states[user_ip]["staff"] = staff_choice.title()
-                response_text = "Wann würden Sie den Termin gerne wahrnehmen?
-Bitte geben Sie das Datum und die Uhrzeit im Format **TT.MM.JJJJ HH:MM** ein, z.B.
-**15.10.2025 14:00**."
+                response_text = "Wann würden Sie den Termin gerne wahrnehmen? Bitte geben Sie das Datum und die Uhrzeit im Format **TT.MM.JJJJ HH:MM** ein, z.B. **15.10.2025 14:00**."
                 user_states[user_ip]["state"] = "waiting_for_datetime"
             else:
                 available_staff = ", ".join(staff_db.keys()).title()
-                response_text = f"Der Mitarbeiter '{user_message.title()}' ist mir nicht bekannt.
-Bitte wählen Sie aus {available_staff} oder geben Sie 'Egal' ein."
+                response_text = f"Der Mitarbeiter '{user_message.title()}' ist mir nicht bekannt. Bitte wählen Sie aus {available_staff} oder geben Sie 'Egal' ein."
 
         elif current_state == "waiting_for_datetime":
             user_states[user_ip]["date_time"] = user_message
@@ -440,17 +431,14 @@ Angaben:\n"
           
           
                 if send_appointment_request(request_data):
-                    response_text = "Vielen Dank!
-Ihre Terminanfrage wurde erfolgreich übermittelt. Wir werden uns in Kürze bei Ihnen melden."
+                    response_text = "Vielen Dank! Ihre Terminanfrage wurde erfolgreich übermittelt. Wir werden uns in Kürze bei Ihnen melden."
                 else:
-                    response_text = "Entschuldigung, es gab ein Problem beim Senden Ihrer Anfrage.
-Bitte rufen Sie uns direkt an unter 030-123456."
+                    response_text = "Entschuldigung, es gab ein Problem beim Senden Ihrer Anfrage. Bitte rufen Sie uns direkt an unter 030-123456."
                 
                 user_states[user_ip]["state"] = "initial"
             
             elif user_message in ["nein", "abbrechen", "falsch"]:
-                response_text = "Die Terminanfrage wurde abgebrochen.
-Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'."
+                response_text = "Die Terminanfrage wurde abgebrochen. Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'."
                 user_states[user_ip]["state"] = "initial"
             
             else:
@@ -465,5 +453,6 @@ Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termi
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 

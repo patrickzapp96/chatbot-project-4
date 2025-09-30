@@ -184,16 +184,14 @@ faq_db = {
             "kategorie": "Services",
             "titel": "Trockenhaarschnitt",
             "keywords": ["trockenhaarschnitt", "trockenschnitt", "ohne waschen", "schnell"],
-            "antwort": "Ein Trockenhaarschnitt ist bei uns nach Absprache möglich. Er ist ideal, wenn Sie wenig Zeit haben oder einfach nur die Spitzen geschnitten haben 
-möchten."
+            "antwort": "Ein Trockenhaarschnitt ist bei uns nach Absprache möglich. Er ist ideal, wenn Sie wenig Zeit haben oder einfach nur die Spitzen geschnitten haben möchten."
         },
         {
             "id": 24,
             "kategorie": "Terminbuchung",
             "titel": "Termin stornieren",
             "keywords": ["stornieren", "termin stornieren", "termin absagen", "verschieben", "nicht kommen"],
-            "antwort": "Sie können Ihren Termin bis zu 24 Stunden vorher telefonisch unter 030-123456 oder per E-Mail an info@friseur-muster.de absagen. 
-Bei Nichterscheinen behalten wir uns vor, eine Ausfallgebühr zu berechnen."
+            "antwort": "Sie können Ihren Termin bis zu 24 Stunden vorher telefonisch unter 030-123456 oder per E-Mail an info@friseur-muster.de absagen. Bei Nichterscheinen behalten wir uns vor, eine Ausfallgebühr zu berechnen."
 },
         {
             "id": 25,
@@ -467,4 +465,5 @@ Falls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termi
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 

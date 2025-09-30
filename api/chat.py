@@ -299,8 +299,7 @@ def log_unanswered_query(query):
     try:
         with open("unanswered_queries.log", "a", encoding="utf-8") as f:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            f.write(f"[{timestamp}] 
-UNANSWERED: {query}\n")
+            f.write(f"[{timestamp}] UNANSWERED: {query}\n")
     except Exception as e:
         print(f"Fehler beim Schreiben der Log-Datei: {e}")
 
@@ -453,6 +452,7 @@ Angaben:\n"
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 

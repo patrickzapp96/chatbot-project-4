@@ -292,7 +292,7 @@ def send_appointment_request(request_data):
         f"TERMIN-DETAILS:\n"
         f"Gebuchter Service: {request_data.get('service', 'N/A')}\n"
         f"Wunsch-Mitarbeiter: {request_data.get('staff', 'Keine Angabe')}\n\n"
-        f"WICHTIG: Termin muss manuell bestätigt werden! Rufen Sie den Kunden an."
+        f"WICHTIG: Termin muss dem Kunden manuell bestätigt werden! Auf 'antworten' klicken."
     )
     event.add('description', description_text)
 
@@ -466,3 +466,4 @@ def chat_handler():
     except Exception as e:
         print(f"Ein Fehler ist aufgetreten: {e}")
         return jsonify({"error": "Interner Serverfehler"}), 500
+

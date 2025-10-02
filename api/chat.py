@@ -5,7 +5,8 @@ import smtplib
 from email.message import EmailMessage
 import re
 from icalendar import Calendar, Event
-from datetime import datetime
+from datetime import datetime, timedelta # NEU: timedelta für die Dauer
+import uuid # NEU: uuid für die eindeutige ID
 
 app = Flask(__name__)
 CORS(app)
@@ -19,6 +20,9 @@ staff_db = {
     "anna": "STAFF_EMAIL_ANNA", # Environment Variable Key für Anna's E-Mail
     "julia": "STAFF_EMAIL_JULIA" # Environment Variable Key für Julia's E-Mail
 }
+
+# NEU: Standard-Termindauer (Wird später durch eine dynamische Logik ersetzt, aber für MVP benötigt)
+APPOINTMENT_DURATION = timedelta(minutes=60)
 
 # FAQ-Datenbank
 faq_db = {
@@ -219,13 +223,13 @@ def send_appointment_request(request_data):
     receiver_email = os.environ.get("RECEIVER_EMAIL")
     
     # NEU: Mitarbeiter E-Mail-Adresse abrufen
-    staff_key = staff_db.get(request_data.get('staff', '').lower())
+    staff_key_env = staff_db.get(request_data.get('staff', '').lower())
     # Mitarbeiter-E-Mail nur abrufen, wenn nicht "egal" oder "keine angabe"
-    staff_email = os.environ.get(staff_key) if staff_key and staff_key not in ["egal", "keine angabe"] else None
+    staff_email = os.environ.get(staff_key_env) if staff_key_env and staff_key_env.lower() not in ["egal", "keine angabe"] else None
     
     # Empfängerliste erstellen (Hauptempfänger + Mitarbeiter, falls vorhanden)
     recipients = [receiver_email]
-    if staff_email:
+    if staff_email and staff_email not in recipients:
         recipients.append(staff_email)
 
     if not all([sender_email, sender_password, receiver_email]):
@@ -255,7 +259,8 @@ def send_appointment_request(request_data):
     Mitarbeiter: {request_data.get('staff', 'Keine Angabe')}
     Datum & Uhrzeit: {request_data.get('date_time', 'N/A')}
     
-    Bitte bestätigen Sie diesen Termin manuell im Kalender oder kontaktieren Sie den Kunden direkt.
+    Bitte bestätigen Sie diesen Termin manuell im Kalender oder 
+    kontaktieren Sie den Kunden direkt.
 """
     msg.set_content(email_text)
 
@@ -271,22 +276,45 @@ def send_appointment_request(request_data):
         print(f"Fehler bei der Konvertierung des Datums: {e}")
         return False
 
+    # NEU: Erweiterte iCalendar-Eigenschaften hinzufügen
     event.add('dtstart', start_time)
-    event.add('summary', f"Termin mit {request_data.get('name', 'Kunde')} bei {request_data.get('staff', 'Team')}")
-    event.add('description', f"Service: {request_data.get('service', 'N/A')}\nE-Mail: {request_data.get('email', 'N/A')}\nMitarbeiter: {request_data.get('staff', 'Keine Angabe')}")
+    event.add('dtend', start_time + APPOINTMENT_DURATION) # Dauer hinzufügen
+    event.add('summary', f"VORLÄUFIG: Termin mit {request_data.get('name', 'Kunde')} bei {request_data.get('staff', 'Team')}")
+    event.add('status', 'TENTATIVE') # Status auf vorläufig setzen
+    event.add('uid', str(uuid.uuid4())) # Eindeutige ID hinzufügen
+    event.add('organizer', f'mailto:{request_data.get("email")}') # Kunde als Organizer
+
+    # Detailliertere Beschreibung hinzufügen
+    description_text = (
+        f"KUNDENDATEN:\n"
+        f"Name: {request_data.get('name', 'N/A')}\n"
+        f"E-Mail: {request_data.get('email', 'N/A')}\n\n"
+        f"TERMIN-DETAILS:\n"
+        f"Gebuchter Service: {request_data.get('service', 'N/A')}\n"
+        f"Wunsch-Mitarbeiter: {request_data.get('staff', 'Keine Angabe')}\n\n"
+        f"WICHTIG: Termin muss manuell bestätigt werden! Rufen Sie den Kunden an."
+    )
+    event.add('description', description_text)
+
+    # Mitarbeiter als Teilnehmer hinzufügen (wenn spezifisch ausgewählt)
+    if staff_email:
+        event.add('attendee', f'mailto:{staff_email}', parameters={
+            'CN': request_data.get('staff', 'Team'),
+            'ROLE': 'REQ-PARTICIPANT' # Erforderlicher Teilnehmer
+        })
+
     event.add('location', 'Musterstraße 12, 10115 Berlin')
     
     cal.add_component(event)
 
     # Erstelle einen Anhang aus dem Kalenderobjekt
     ics_file = cal.to_ical()
-    msg.add_attachment(ics_file, maintype='text', subtype='calendar', filename='Termin.ics')
+    msg.add_attachment(ics_file, maintype='text', subtype='calendar', filename='Terminanfrage.ics')
     
     # Sende die E-Mail
     try:
         with smtplib.SMTP_SSL("smtp.web.de", 465) as smtp:
             smtp.login(sender_email, sender_password)
-    
             smtp.send_message(msg)
         return True
     except Exception as e:
@@ -325,13 +353,14 @@ def chat_handler():
                 response_text = "Möchten Sie einen Termin vereinbaren?\nBitte antworten Sie mit 'Ja' oder 'Nein'."
                 user_states[user_ip] = {"state": "waiting_for_confirmation_appointment"}
             else:
+    
                 # Führe die einfache Keyword-Suche durch
                 cleaned_message = re.sub(r'[^\w\s]', '', user_message)
                 user_words = set(cleaned_message.split())
     
                 best_match_score = 0
                 best_item = None
-                
+     
                 for item in faq_db['fragen']:
                     keyword_set = set(item['keywords'])
                     intersection = user_words.intersection(keyword_set)
@@ -341,11 +370,12 @@ def chat_handler():
                     if score > best_match_score:
                         best_match_score = score
                         best_item = item
-                
+  
                 # Antwort nur setzen, wenn ein Match gefunden wurde
                 if best_match_score > 0:
                      response_text = best_item['antwort']
                 else:
+    
                     # Wenn kein Match gefunden wurde, logge die Anfrage
                     log_unanswered_query(user_message)
                     # response_text bleibt faq_db['fallback']
@@ -394,6 +424,7 @@ def chat_handler():
             user_states[user_ip]["date_time"] = user_message
             
             data = user_states[user_ip]
+  
             response_text = (
                 f"Bitte überprüfen Sie Ihre Angaben:\n"
                 f"Name: {data.get('name', 'N/A')}\n"
@@ -421,7 +452,7 @@ def chat_handler():
                     response_text = "Entschuldigung, es gab ein Problem beim Senden Ihrer Anfrage.\nBitte rufen Sie uns direkt an unter 030-123456."
                 
                 user_states[user_ip]["state"] = "initial"
-            
+      
             elif user_message in ["nein", "abbrechen", "falsch"]:
                 response_text = "Die Terminanfrage wurde abgebrochen.\nFalls Sie die Eingabe korrigieren möchten, beginnen Sie bitte erneut mit 'Termin vereinbaren'."
                 user_states[user_ip]["state"] = "initial"
